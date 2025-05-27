@@ -19,6 +19,7 @@
       line-height: 1.6;
       max-width: 800px;
       margin: auto;
+      white-space: pre-wrap; /* fondamentale per interpretare gli \n */
     }
 
     .word {
@@ -28,6 +29,10 @@
 
     .visible {
       opacity: 1;
+    }
+
+    br {
+      line-height: 2.5; /* più spazio tra paragrafi */
     }
   </style>
 </head>
@@ -44,24 +49,42 @@ Love bears all things, believes all things, hopes all things, endures all things
 So now faith, hope, and love abide, these three; but the greatest of these is love.`;
 
     const container = document.getElementById('text-container');
-    const words = passage.split(/(\s+)/); // preserve spaces
 
-    words.forEach((word, index) => {
-      const span = document.createElement('span');
-      span.textContent = word;
-      span.className = 'word';
-      container.appendChild(span);
+    // Suddivide il testo tenendo conto di paragrafi (doppio \n)
+    const lines = passage.split('\n');
+
+    const elements = [];
+
+    lines.forEach((line, lineIndex) => {
+      const words = line.split(/(\s+)/); // include anche gli spazi
+
+      words.forEach(word => {
+        const span = document.createElement('span');
+        span.textContent = word;
+        span.className = 'word';
+        elements.push(span);
+      });
+
+      // aggiungi un <br> dopo ogni riga tranne l'ultima
+      if (lineIndex < lines.length - 1) {
+        elements.push(document.createElement('br'));
+      }
     });
 
-    const spans = document.querySelectorAll('.word');
+    // Appendi tutti gli elementi al container
+    elements.forEach(el => container.appendChild(el));
+
     let i = 0;
 
     function showWord() {
-      if (i < spans.length) {
-        spans[i].classList.add('visible');
-        spans[i].scrollIntoView({ behavior: 'smooth', block: 'end' });
+      if (i < elements.length) {
+        const el = elements[i];
+        if (el.classList && el.classList.contains('word')) {
+          el.classList.add('visible');
+        }
+        el.scrollIntoView({ behavior: 'smooth', block: 'end' });
         i++;
-        setTimeout(showWord, 70); // adjust speed here
+        setTimeout(showWord, 120); // velocità
       }
     }
 
